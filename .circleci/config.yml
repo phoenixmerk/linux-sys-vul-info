@@ -21,6 +21,7 @@ jobs:
           name: "解压并运行 go-cve-directory"
           command: |
             tar -xzvf go-cve-dictionary_0.13.1_linux_amd64.tar.gz
+            ls -la
             ./go-cve-directory --help
 
 workflows:
