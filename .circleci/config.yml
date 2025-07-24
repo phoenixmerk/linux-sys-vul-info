@@ -13,11 +13,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "安装 tar 工具"
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y tar
-      - run:
           name: "查看当前目录"
           command: |
             sudo ls -la
@@ -25,7 +20,7 @@ jobs:
       - run:
           name: "解压并运行 go-cve-directory"
           command: |
-            tar -xzvf go-cve-directory.tar.gz
+            tar -xzvf go-cve-dictionary_0.13.1_linux_amd64.tar.gz
             ./go-cve-directory --help
 
 workflows:
