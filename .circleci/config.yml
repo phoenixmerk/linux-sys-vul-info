@@ -18,6 +18,11 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y tar
       - run:
+          name: "查看当前目录"
+          command: |
+            sudo ls -la
+            sudo pwd
+      - run:
           name: "解压并运行 go-cve-directory"
           command: |
             tar -xzvf go-cve-directory.tar.gz
