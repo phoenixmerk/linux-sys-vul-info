@@ -5,18 +5,13 @@ jobs:
   build-and-run:
     # 指定执行器类型
     docker:
-      - image: cimg/base:current # 指定要使用的 Docker 镜像
+      - image: cimg/base:current
     
     # 在这里为 Docker 执行器指定资源大小
     resource_class: large 
 
     steps:
       - checkout
-      - run:
-          name: "安装所需工具"
-          command: |
-            apt-get update
-            apt-get install -y tar sudo
       - run:
           name: "查看当前目录"
           command: |
