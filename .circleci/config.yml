@@ -1,39 +1,29 @@
 # 使用 CircleCI 流水线处理引擎的最新 2.1 版本。
-# 参阅: https://circleci.com/docs/configuration-reference
 version: 2.1
 
-# 定义一个将在工作流程中稍后调用的作业。
-# 参阅: https://circleci.com/docs/jobs-steps/#jobs-overview & https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  run-go-cve-directory:
-    # 指定执行环境。您可以指定来自 Docker Hub 的镜像，或使用我们 CircleCI 开发者中心的便捷镜像之一。
-    # 参阅: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
-    machine:
-      # 为 amd64 架构指定一个 Linux 镜像。
-      image: cimg/base:current
+  build-and-run:
+    # 指定执行器类型
+    docker:
+      - image: cimg/base:current # 指定要使用的 Docker 镜像
     
-    # 向作业添加步骤
-    # 参阅: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
+    # 在这里为 Docker 执行器指定资源大小
+    resource_class: large # <-- 将 resource_class 放在这里，与 docker 平级
+
     steps:
-      # 第一步，检出代码。
       - checkout
       - run:
           name: "安装 tar 工具"
-          # cimg/base 是基于 Debian 的，所以我们使用 apt-get 来安装。
           command: |
             sudo apt-get update
             sudo apt-get install -y tar
       - run:
           name: "解压并运行 go-cve-directory"
-          # 假设您的可执行文件名为 "go-cve-directory"
           command: |
             tar -xzvf go-cve-directory.tar.gz
             ./go-cve-directory --help
 
-# 使用工作流程编排作业
-# 参阅: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  run-go-cve-workflow: # 这是工作流程的名称，您可以随意更改以更好地匹配您的工作流程。
-    # 在工作流程中，定义您想要运行的作业。
+  build-and-run-workflow:
     jobs:
-      - run-go-cve-directory
+      - build-and-run
