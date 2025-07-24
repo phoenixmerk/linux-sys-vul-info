@@ -21,8 +21,30 @@ jobs:
           name: "解压并运行 go-cve-directory"
           command: |
             tar -xzvf go-cve-dictionary_0.13.1_linux_amd64.tar.gz
-            ls -la
-            ./go-cve-directory --help
+      - run:
+          name: "爬取nvd漏洞信息"
+            ./go-cve-dictionary fetch nvd --dbpath=$PWD/nvd.sqlite3
+      - run:
+          name: "安装 GitHub CLI"
+          command: |
+            # Check if gh is already installed
+            if ! command -v gh &> /dev/null; then
+              # Download and install gh
+              curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+              sudo apt update
+              sudo apt install gh
+            fi
+      - run:
+          name: GitHub authentication
+          command: |
+            export GH_AUTH_SKIP_MFA=true
+            echo "${GITHUB_TOKEN}" | gh auth login --with-token
+      - run:
+          name: GitHub release 
+          command: |
+            VERSION=$(date +'%Y.%m.%d.%H.%M')
+            gh release create "v$VERSION" --title "Release v$VERSION" --notes "NVD数据库 Release" nvd.sqlite3
 
 workflows:
   build-and-run-workflow:
