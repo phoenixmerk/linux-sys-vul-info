@@ -10,13 +10,19 @@ jobs:
     # 参阅: https://circleci.com/docs/executor-intro/ & https://circleci.com/docs/configuration-reference/#executor-job
     machine:
       # 为 amd64 架构指定一个 Linux 镜像。
-      image: ubuntu-2204:current
+      image: cimg/base:current
     
     # 向作业添加步骤
     # 参阅: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
     steps:
       # 第一步，检出代码。
       - checkout
+      - run:
+          name: "安装 tar 工具"
+          # cimg/base 是基于 Debian 的，所以我们使用 apt-get 来安装。
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y tar
       - run:
           name: "解压并运行 go-cve-directory"
           # 假设您的可执行文件名为 "go-cve-directory"
