@@ -12,11 +12,11 @@ jobs:
 
     steps:
       - checkout
-      - run:
-          name: "查看当前目录"
-          command: |
-            ls -la
-            pwd
+      # - run:
+      #     name: "查看当前目录"
+      #     command: |
+      #       ls -la
+      #       pwd
       - run:
           name: "解压 go-cve-dictionary"
           command: |
@@ -24,32 +24,40 @@ jobs:
       - run:
           name: "爬取 NVD 漏洞信息"
           command: "./go-cve-dictionary fetch nvd --dbpath=$PWD/nvd.sqlite3"
+      # - run:
+      #     name: "安装 GitHub CLI"
+      #     command: |
+      #       # Check if gh is already installed
+      #       if ! command -v gh &> /dev/null; then
+      #         # Download and install gh
+      #         sudo apt-get update
+      #         sudo apt-get install -y curl gpg
+      #         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+      #         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+      #         sudo apt update
+      #         sudo apt install -y gh
+      #       else
+      #         echo "GitHub CLI is already installed."
+      #       fi
+      # - run:
+      #     name: "GitHub Authentication"
+      #     command: |
+      #       echo "${GITHUB_TOKEN}" | gh auth login --with-token
+      # - run:
+      #     name: "创建 GitHub Release"
+      #     command: |
+      #       VERSION=$(date +'%Y.%m.%d.%H.%M')
+      #       gh release create "v$VERSION" nvd.sqlite3 --title "Release v$VERSION" --notes "NVD 数据库 Release"
       - run:
-          name: "安装 GitHub CLI"
-          command: |
-            # Check if gh is already installed
-            if ! command -v gh &> /dev/null; then
-              # Download and install gh
-              sudo apt-get update
-              sudo apt-get install -y curl gpg
-              curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
-              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-              sudo apt update
-              sudo apt install -y gh
-            else
-              echo "GitHub CLI is already installed."
-            fi
-      - run:
-          name: "GitHub Authentication"
-          command: |
-            echo "${GITHUB_TOKEN}" | gh auth login --with-token
-      - run:
-          name: "创建 GitHub Release"
-          command: |
-            VERSION=$(date +'%Y.%m.%d.%H.%M')
-            gh release create "v$VERSION" nvd.sqlite3 --title "Release v$VERSION" --notes "NVD 数据库 Release"
+        name: "创建nvd制品目录"
+        command: |
+          mkdir /tmp/nvd-artifacts
+          cp nvd.sqlite3 /tmp/nvd-artifacts/
+      - store_artifacts:
+          path: /tmp/nvd-artifacts
+          destination: nvd.sqlite3
 
 workflows:
   build-and-run-workflow:
     jobs:
-      - build-and-run
+      - build-and-store
