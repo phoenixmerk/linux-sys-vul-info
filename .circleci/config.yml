@@ -60,4 +60,4 @@ jobs:
 workflows:
   build-and-run-workflow:
     jobs:
-      - build-and-store
+      - build-and-run
