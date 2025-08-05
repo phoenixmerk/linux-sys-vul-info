@@ -1,13 +1,10 @@
-# 使用 CircleCI 流水线处理引擎的最新 2.1 版本。
 version: 2.1
 
 jobs:
   build-and-run:
-    # 指定执行器类型
+    # 指定执行器类型和资源大小
     docker:
       - image: cimg/base:current
-    
-    # 在这里为 Docker 执行器指定资源大小
     resource_class: large 
 
     steps:
@@ -15,18 +12,23 @@ jobs:
       - run:
           name: "解压 go-cve-dictionary"
           command: |
-            tar -xzvf go-cve-dictionary_0.13.1_linux_amd64.tar.gz
+            # 建议添加 -C 选项来指定解压目录，使后续步骤更清晰
+            mkdir -p go-cve-dictionary
+            tar -xzvf go-cve-dictionary_0.13.1_linux_amd64.tar.gz -C go-cve-dictionary
       - run:
           name: "爬取 NVD 漏洞信息"
-          command: "./go-cve-dictionary fetch nvd --dbpath=$PWD/nvd.sqlite3"
+          command: "./go-cve-dictionary/go-cve-dictionary fetch nvd --dbpath=$PWD/nvd.sqlite3"
       - run:
-        name: "创建nvd制品目录"
-        command: |
-          mkdir /tmp/nvd-artifacts
-          cp nvd.sqlite3 /tmp/nvd-artifacts/
+          name: "创建 nvd 制品目录"
+          command: |
+            mkdir -p /tmp/nvd-artifacts
+            cp nvd.sqlite3 /tmp/nvd-artifacts/
       - store_artifacts:
+          # path 指向要存储的目录
           path: /tmp/nvd-artifacts
-          destination: nvd.sqlite3
+          # destination 是一个可选的前缀
+          destination: nvd-artifacts
+
 workflows:
   build-and-run-workflow:
     jobs:
